@@ -1,14 +1,17 @@
 package com.example.pc.filemanager;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -20,29 +23,40 @@ public class MainActivity extends AppCompatActivity {
     private List<String> fileNameList;
     private FileAdapter mAdapter;
 
+    private boolean isClicked;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
         listView = (ListView) findViewById(R.id.listView);
-        file = Environment.getExternalStorageDirectory();
         fileNameList = getFileListfromSDCard();
         mAdapter = new FileAdapter(this, R.layout.list_item, fileNameList);
         listView.setAdapter(mAdapter);
+
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                String selectedDirectoryString = fileNameList.get(position);
+                File clickedDirectory = new File(selectedDirectoryString);
+
+            }
+        });
     }
 
     public List<String> getFileListfromSDCard() {
-        String state = Environment.getExternalStorageState();
-        List<String> flLst = new ArrayList<String>();
-        if (Environment.MEDIA_MOUNTED.equals(state) && file.isDirectory()) {
-            File[] fileArr = file.listFiles();
-            int length = fileArr.length;
-            for (int i = 0; i < length; i++) {
-                File f = fileArr[i];
-                flLst.add(f.getName());
-            }
-        }
+
+                String state = Environment.getExternalStorageState();
+                List<String> flLst = new ArrayList<String>();
+                if (Environment.MEDIA_MOUNTED.equals(state) && file.isDirectory()) {
+                    File[] fileArr = file.listFiles();
+                    int length = fileArr.length;
+                    for (int i = 0; i < length; i++) {
+                        File f = fileArr[i];
+                        flLst.add(f.getName());
+                    }
+                }
+
         return flLst;
     }
 
