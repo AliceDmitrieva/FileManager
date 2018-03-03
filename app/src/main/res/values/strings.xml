@@ -49,7 +49,7 @@
     <string name="info_sorting_option">Click to view preferences</string>
     <string name="info_hiddenFiles_option">Show files starting with \' . \'</string>
     <string name="info_search_view">Search files and folders</string>
-
+    <string name="extraName">directory</string>
 
 
 </resources>

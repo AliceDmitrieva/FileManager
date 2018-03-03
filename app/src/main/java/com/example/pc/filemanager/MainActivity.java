@@ -41,7 +41,7 @@ public class MainActivity extends AppCompatActivity {
                 String selectedDirectoryString = fileNameList.get(position);
                 File clickedDirectory = new File(selectedDirectoryString);
                 Intent i = new Intent(MainActivity.this, MainActivity.class);
-                i.putExtra("directory", clickedDirectory);
+                i.putExtra(getString(R.string.extraName), clickedDirectory);
 
                 startActivity(i);
             }
@@ -55,27 +55,27 @@ public class MainActivity extends AppCompatActivity {
                 file = Environment.getExternalStorageDirectory();
             }
                 String state = Environment.getExternalStorageState();
-                List<String> flLst = new ArrayList<String>();
+                List<String> fileList = new ArrayList<String>();
                 if (Environment.MEDIA_MOUNTED.equals(state) && file.isDirectory()) {
                     File[] fileArr = file.listFiles();
                     int length = fileArr.length;
                     for (int i = 0; i < length; i++) {
                         File f = fileArr[i];
-                        flLst.add(f.getName());
+                        fileList.add(f.getName());
                     }
                 }
 
-        return flLst;
+        return fileList;
     }
 
     public class FileAdapter extends ArrayAdapter<String> {
         private List<String> fileList;
-        private Context adapContext;
+        private Context context;
 
         public FileAdapter(Context context, int textViewResourceId, List<String> fileList) {
             super(context, textViewResourceId, fileList);
             this.fileList = fileList;
-            adapContext = context;
+            this.context = context;
         }
 
         @Override
@@ -84,7 +84,7 @@ public class MainActivity extends AppCompatActivity {
             FileHolder fHolder = null;
 
             if (convertView == null) {
-                view = View.inflate(adapContext, R.layout.list_item, null);
+                view = View.inflate(context, R.layout.list_item, null);
 
                 fHolder = new FileHolder();
                 fHolder.fileNameView = (TextView) view.findViewById(R.id.file_name);
