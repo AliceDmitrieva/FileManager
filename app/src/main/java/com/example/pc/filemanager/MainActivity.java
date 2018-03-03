@@ -37,9 +37,12 @@ public class MainActivity extends AppCompatActivity {
 
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
                 String selectedDirectoryString = fileNameList.get(position);
                 File clickedDirectory = new File(selectedDirectoryString);
-
+                Intent i = new Intent(MainActivity.this, MainActivity.class);
+                i.putExtra("directory", clickedDirectory);
+                startActivity(i);
             }
         });
     }
