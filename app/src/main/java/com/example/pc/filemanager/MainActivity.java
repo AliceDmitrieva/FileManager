@@ -42,13 +42,18 @@ public class MainActivity extends AppCompatActivity {
                 File clickedDirectory = new File(selectedDirectoryString);
                 Intent i = new Intent(MainActivity.this, MainActivity.class);
                 i.putExtra("directory", clickedDirectory);
+
                 startActivity(i);
             }
         });
     }
 
     public List<String> getFileListfromSDCard() {
-
+            Bundle extras = getIntent().getExtras();
+            File file = extras == null ? null : (File) extras.getSerializable("directory");
+            if (file == null) {
+                file = Environment.getExternalStorageDirectory();
+            }
                 String state = Environment.getExternalStorageState();
                 List<String> flLst = new ArrayList<String>();
                 if (Environment.MEDIA_MOUNTED.equals(state) && file.isDirectory()) {
