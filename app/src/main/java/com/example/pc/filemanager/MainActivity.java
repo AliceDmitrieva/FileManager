@@ -13,7 +13,6 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -24,6 +23,8 @@ public class MainActivity extends AppCompatActivity {
     private List<File> fileNameList;
     private FileAdapter mAdapter;
     private Toolbar mToolbar;
+
+    private TextView textView;
 
     @NonNull
     public static List<File> getFileListfromSDCard(@NonNull File file) {
@@ -64,7 +65,6 @@ public class MainActivity extends AppCompatActivity {
         updateToolbarTitle(file);
         fileNameList = getFileListfromSDCard(file);
         mAdapter = new FileAdapter(this, R.layout.list_item, fileNameList);
-        checkEmpty(fileNameList);
 
         listView = findViewById(android.R.id.list);
         listView.setAdapter(mAdapter);
@@ -78,12 +78,13 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(i);
             }
         });
-    }
 
-    public void checkEmpty(List<File> fileList) {
-        if (fileList.size() == 0) {
-            Toast.makeText(MainActivity.this, "Folder is empty!", Toast.LENGTH_SHORT).show();
+        textView = findViewById(R.id.textView);
+        if (fileNameList.size() == 0) {
+            textView.setVisibility(View.VISIBLE);
+            listView.setVisibility(View.INVISIBLE);
         }
+
     }
 
     public void updateToolbarTitle(File file) {
