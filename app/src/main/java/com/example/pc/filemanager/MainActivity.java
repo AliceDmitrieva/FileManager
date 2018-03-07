@@ -1,27 +1,24 @@
 package com.example.pc.filemanager;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
 import android.widget.TextView;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity {
-    private ListView listView;
+public class MainActivity extends AppCompatActivity implements RecyclerViewAdapter.ItemClickListener {
+    private RecyclerView recyclerView;
     private List<File> fileNameList;
-    private FileAdapter mAdapter;
+    public RecyclerViewAdapter mAdapter;
     private Toolbar mToolbar;
 
     private TextView textView;
@@ -64,12 +61,9 @@ public class MainActivity extends AppCompatActivity {
 
         updateToolbarTitle(file);
         fileNameList = getFileListfromSDCard(file);
-        mAdapter = new FileAdapter(this, R.layout.list_item, fileNameList);
 
-        listView = findViewById(android.R.id.list);
-        listView.setAdapter(mAdapter);
 
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+     /*   listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 File clickedDirectory = fileNameList.get(position);
                 Intent i = new Intent(MainActivity.this, MainActivity.class);
@@ -77,13 +71,20 @@ public class MainActivity extends AppCompatActivity {
 
                 startActivity(i);
             }
-        });
+        });*/
 
         textView = findViewById(R.id.textView);
         if (fileNameList.size() == 0) {
             textView.setVisibility(View.VISIBLE);
-            listView.setVisibility(View.INVISIBLE);
+            recyclerView.setVisibility(View.INVISIBLE);
         }
+
+
+        recyclerView = findViewById(R.id.rvFiles);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        mAdapter = new RecyclerViewAdapter(this, R.layout.list_item, fileNameList);
+        mAdapter.setClickListener(this);
+        recyclerView.setAdapter(mAdapter);
 
     }
 
@@ -91,39 +92,17 @@ public class MainActivity extends AppCompatActivity {
         mToolbar.setTitle(file.getPath().toString());
     }
 
-    static class FileHolder {
-        public TextView fileNameView;
+
+    @Override
+    public void onItemClick(View view, int position) {
+        File clickedDirectory = fileNameList.get(position);
+        Intent i = new Intent(MainActivity.this, MainActivity.class);
+        i.putExtra(getString(R.string.extraName), clickedDirectory);
+
+        startActivity(i);
     }
 
-    public class FileAdapter extends ArrayAdapter<File> {
-        private List<File> fileList;
-        private Context context;
-
-        public FileAdapter(Context context, int textViewResourceId, List<File> fileList) {
-            super(context, textViewResourceId, fileList);
-            this.fileList = fileList;
-            this.context = context;
-        }
-
-        @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-            View view = convertView;
-            FileHolder fHolder = null;
-
-            if (convertView == null) {
-                view = View.inflate(context, R.layout.list_item, null);
-
-                fHolder = new FileHolder();
-                fHolder.fileNameView = (TextView) view.findViewById(R.id.file_name);
-
-                view.setTag(fHolder);
-            } else {
-                fHolder = (FileHolder) view.getTag();
-            }
-            String fileName = fileList.get(position).getName();
-            fHolder.fileNameView.setText(fileName);
-
-            return view;
-        }
+    static class FileHolder {
+        public TextView fileNameView;
     }
 }
