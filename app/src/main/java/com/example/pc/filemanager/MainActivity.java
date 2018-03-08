@@ -13,11 +13,10 @@ import android.widget.TextView;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements RecyclerViewAdapter.ItemClickListener {
-    private RecyclerView recyclerView;
-    private List<File> fileNameList;
+public class MainActivity extends AppCompatActivity {
     public RecyclerViewAdapter mAdapter;
     private Toolbar mToolbar;
 
@@ -60,32 +59,32 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewAdapt
         }
 
         updateToolbarTitle(file);
-        fileNameList = getFileListfromSDCard(file);
-
-
-     /*   listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                File clickedDirectory = fileNameList.get(position);
-                Intent i = new Intent(MainActivity.this, MainActivity.class);
-                i.putExtra(getString(R.string.extraName), clickedDirectory);
-
-                startActivity(i);
-            }
-        });*/
+        List<File> fileNameList = getFileListfromSDCard(file);
+        Collections.sort(fileNameList);
 
         textView = findViewById(R.id.textView);
+
+        RecyclerView recyclerView = findViewById(R.id.rvFiles);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+
         if (fileNameList.size() == 0) {
             textView.setVisibility(View.VISIBLE);
             recyclerView.setVisibility(View.INVISIBLE);
         }
 
-
-        recyclerView = findViewById(R.id.rvFiles);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
         mAdapter = new RecyclerViewAdapter(this, R.layout.list_item, fileNameList);
-        mAdapter.setClickListener(this);
         recyclerView.setAdapter(mAdapter);
 
+        mAdapter.setOnEntryClickListener(new RecyclerViewAdapter.OnEntryClickListener() {
+            @Override
+            public void onEntryClick(File file) {
+                Intent i = new Intent(MainActivity.this, MainActivity.class);
+                i.putExtra(getString(R.string.extraName), file);
+
+                startActivity(i);
+            }
+        });
+        recyclerView.setAdapter(mAdapter);
     }
 
     public void updateToolbarTitle(File file) {
@@ -93,16 +92,4 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewAdapt
     }
 
 
-    @Override
-    public void onItemClick(View view, int position) {
-        File clickedDirectory = fileNameList.get(position);
-        Intent i = new Intent(MainActivity.this, MainActivity.class);
-        i.putExtra(getString(R.string.extraName), clickedDirectory);
-
-        startActivity(i);
-    }
-
-    static class FileHolder {
-        public TextView fileNameView;
-    }
 }
