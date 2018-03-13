@@ -17,13 +17,41 @@ import java.util.List;
 
 public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.ViewHolder> {
     private OnEntryClickListener mOnEntryClickListener;
+    private List<File> fileList;
 
-    public interface OnEntryClickListener {
-        void onEntryClick(File file);
+    RecyclerViewAdapter(Context context, int textViewResourceId, List<File> fileList) {
+        this.fileList = fileList;
     }
 
     public void setOnEntryClickListener(OnEntryClickListener onEntryClickListener) {
         mOnEntryClickListener = onEntryClickListener;
+    }
+
+    @Override
+    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        LayoutInflater inflater = LayoutInflater.from(parent.getContext());
+        View view = inflater.inflate(R.layout.list_item, parent, false);
+        return new ViewHolder(view);
+    }
+
+    @Override
+    public void onBindViewHolder(ViewHolder holder, int position) {
+        holder.bindFile(fileList.get(position));
+        holder.setIcon(fileList.get(position));
+    }
+
+    @Override
+    public int getItemCount() {
+        return fileList.size();
+    }
+
+    @Override
+    public void onAttachedToRecyclerView(RecyclerView recyclerView) {
+        super.onAttachedToRecyclerView(recyclerView);
+    }
+
+    public interface OnEntryClickListener {
+        void onEntryClick(File file);
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
@@ -57,34 +85,5 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
                 icon.setImageResource(R.drawable.ic_folder_24dp);
             }
         }
-    }
-
-    private List<File> fileList;
-
-    RecyclerViewAdapter(Context context, int textViewResourceId, List<File> fileList) {
-        this.fileList = fileList;
-    }
-
-    @Override
-    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        LayoutInflater inflater = LayoutInflater.from(parent.getContext());
-        View view = inflater.inflate(R.layout.list_item, parent, false);
-        return new ViewHolder(view);
-    }
-
-    @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {
-        holder.bindFile(fileList.get(position));
-        holder.setIcon(fileList.get(position));
-    }
-
-    @Override
-    public int getItemCount() {
-        return fileList.size();
-    }
-
-    @Override
-    public void onAttachedToRecyclerView(RecyclerView recyclerView) {
-        super.onAttachedToRecyclerView(recyclerView);
     }
 }

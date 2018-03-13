@@ -1,6 +1,7 @@
 package com.example.pc.filemanager;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.annotation.NonNull;
@@ -9,6 +10,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
+import android.webkit.MimeTypeMap;
 import android.widget.TextView;
 
 import java.io.File;
@@ -78,10 +80,24 @@ public class MainActivity extends AppCompatActivity {
         mAdapter.setOnEntryClickListener(new RecyclerViewAdapter.OnEntryClickListener() {
             @Override
             public void onEntryClick(File file) {
-                Intent i = new Intent(MainActivity.this, MainActivity.class);
-                i.putExtra(getString(R.string.extraName), file);
+                Intent intent;
 
-                startActivity(i);
+                if (file.isFile()) {
+                    Uri uri = Uri.fromFile(file);
+                    intent = new Intent(android.content.Intent.ACTION_VIEW);
+                    String mime = "*/*";
+                    MimeTypeMap mimeTypeMap = MimeTypeMap.getSingleton();
+                    if (mimeTypeMap.hasExtension(mimeTypeMap.getFileExtensionFromUrl(uri.toString()))) {
+                        mime = mimeTypeMap.getMimeTypeFromExtension(mimeTypeMap.getFileExtensionFromUrl(uri.toString()));
+                        intent.setDataAndType(uri, mime);
+                    }
+
+                } else {
+                    intent = new Intent(MainActivity.this, MainActivity.class);
+                    intent.putExtra(getString(R.string.extraName), file);
+                }
+
+                startActivity(intent);
             }
         });
         recyclerView.setAdapter(mAdapter);
@@ -90,6 +106,4 @@ public class MainActivity extends AppCompatActivity {
     public void updateToolbarTitle(File file) {
         mToolbar.setTitle(file.getPath().toString());
     }
-
-
 }
