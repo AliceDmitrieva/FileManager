@@ -1,6 +1,7 @@
 package com.example.pc.filemanager;
 
 import android.content.Context;
+import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,20 +12,17 @@ import android.widget.TextView;
 import java.io.File;
 import java.util.List;
 
-/**
- * Created by PC on 3/6/2018.
- */
+public class FilesAdapter extends RecyclerView.Adapter<FilesAdapter.ViewHolder> {
 
-public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.ViewHolder> {
-    private OnEntryClickListener mOnEntryClickListener;
+    private OnEntryClickListener onEntryClickListener;
     private List<File> fileList;
 
-    RecyclerViewAdapter(Context context, int textViewResourceId, List<File> fileList) {
+    FilesAdapter(Context context, List<File> fileList) {
         this.fileList = fileList;
     }
 
     public void setOnEntryClickListener(OnEntryClickListener onEntryClickListener) {
-        mOnEntryClickListener = onEntryClickListener;
+        this.onEntryClickListener = onEntryClickListener;
     }
 
     @Override
@@ -37,7 +35,6 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         holder.bindFile(fileList.get(position));
-        holder.setIcon(fileList.get(position));
     }
 
     @Override
@@ -51,39 +48,35 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     }
 
     public interface OnEntryClickListener {
+        @Nullable
         void onEntryClick(File file);
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-        private final TextView myTextView;
-        private ImageView icon;
+    protected class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+        private final @Nullable
+        TextView fileName;
+        private final ImageView icon;
         private File file;
 
         ViewHolder(View itemView) {
             super(itemView);
             itemView.setOnClickListener(this);
-            myTextView = itemView.findViewById(R.id.file_name);
-            icon = itemView.findViewById(R.id.imageView);
+            fileName = itemView.findViewById(R.id.file_name);
+            icon = itemView.findViewById(R.id.file_icon);
         }
 
-        @Override
+        @Override @Nullable
         public void onClick(View v) {
-            if (mOnEntryClickListener != null) {
-                mOnEntryClickListener.onEntryClick(file);
+            if (onEntryClickListener != null) {
+                onEntryClickListener.onEntryClick(file);
             }
         }
 
         void bindFile(File file) {
             this.file = file;
-            myTextView.setText(file.getName());
-        }
-
-        void setIcon(File file) {
-            if (file.isFile()) {
-                icon.setImageResource(R.drawable.ic_file_24dp);
-            } else if (file.isDirectory()) {
-                icon.setImageResource(R.drawable.ic_folder_24dp);
-            }
+            fileName.setText(file.getName());
+            int imageID = file.isFile() == true ? R.drawable.ic_file_24dp : R.drawable.ic_folder_24dp;
+            icon.setImageResource(imageID);
         }
     }
 }

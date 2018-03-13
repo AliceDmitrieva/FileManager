@@ -1,10 +1,11 @@
 package com.example.pc.filemanager;
 
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
-import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -14,29 +15,20 @@ import android.webkit.MimeTypeMap;
 import android.widget.TextView;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity {
-    public RecyclerViewAdapter mAdapter;
-    private Toolbar mToolbar;
+public class MainActivity extends AppCompatActivity implements FilesAdapter.OnEntryClickListener {
 
-    private TextView textView;
+    private static final String EXTRA_DIRECTORY_NAME = "directory_name";
 
-    @NonNull
-    public static List<File> getFileListfromSDCard(@NonNull File file) {
-        String state = Environment.getExternalStorageState();
-        List<File> fileList = new ArrayList<>();
-        if (Environment.MEDIA_MOUNTED.equals(state) && file.isDirectory()) {
-            File[] fileArr = file.listFiles();
-            int length = fileArr.length;
-            for (int i = 0; i < length; i++) {
-                File f = fileArr[i];
-                fileList.add(f);
-            }
-        }
-        return fileList;
+    public FilesAdapter adapter;
+    private Toolbar toolbar;
+    private TextView textMessage;
+
+    public static void start(Context context, File file) {
+        Intent starter = new Intent(context, MainActivity.class);
+        starter.putExtra(EXTRA_DIRECTORY_NAME, file);
+        context.startActivity(starter);
     }
 
     @Override
@@ -44,9 +36,9 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mToolbar = findViewById(R.id.toolbar);
-        mToolbar.setNavigationIcon(R.drawable.ic_arrow_white);
-        mToolbar.setNavigationOnClickListener(new View.OnClickListener() {
+        toolbar = findViewById(R.id.toolbar);
+        toolbar.setNavigationIcon(R.drawable.ic_arrow_white);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 finish();
@@ -54,56 +46,49 @@ public class MainActivity extends AppCompatActivity {
         });
 
         Bundle extras = getIntent().getExtras();
-        File file = extras == null ? null : (File) extras.getSerializable("directory");
+        File file = extras == null ? null : (File) extras.getSerializable(EXTRA_DIRECTORY_NAME);
 
         if (file == null) {
             file = Environment.getExternalStorageDirectory();
         }
 
-        updateToolbarTitle(file);
-        List<File> fileNameList = getFileListfromSDCard(file);
-        Collections.sort(fileNameList);
+        toolbar.setTitle(file.getPath());
+        List<File> fileNameList = FileUtils.getFileListFromSDCard(file);
 
-        textView = findViewById(R.id.textView);
+        textMessage = findViewById(R.id.textMessage);
 
-        RecyclerView recyclerView = findViewById(R.id.rvFiles);
+        RecyclerView recyclerView = findViewById(R.id.recycleView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        if (fileNameList.size() == 0) {
-            textView.setVisibility(View.VISIBLE);
+        if (fileNameList.isEmpty()) {
+            textMessage.setVisibility(View.VISIBLE);
             recyclerView.setVisibility(View.INVISIBLE);
         }
 
-        mAdapter = new RecyclerViewAdapter(this, R.layout.list_item, fileNameList);
-        recyclerView.setAdapter(mAdapter);
+        adapter = new FilesAdapter(this, fileNameList);
+        recyclerView.setAdapter(adapter);
 
-        mAdapter.setOnEntryClickListener(new RecyclerViewAdapter.OnEntryClickListener() {
-            @Override
-            public void onEntryClick(File file) {
-                Intent intent;
-
-                if (file.isFile()) {
-                    Uri uri = Uri.fromFile(file);
-                    intent = new Intent(android.content.Intent.ACTION_VIEW);
-                    String mime = "*/*";
-                    MimeTypeMap mimeTypeMap = MimeTypeMap.getSingleton();
-                    if (mimeTypeMap.hasExtension(mimeTypeMap.getFileExtensionFromUrl(uri.toString()))) {
-                        mime = mimeTypeMap.getMimeTypeFromExtension(mimeTypeMap.getFileExtensionFromUrl(uri.toString()));
-                        intent.setDataAndType(uri, mime);
-                    }
-
-                } else {
-                    intent = new Intent(MainActivity.this, MainActivity.class);
-                    intent.putExtra(getString(R.string.extraName), file);
-                }
-
-                startActivity(intent);
-            }
-        });
-        recyclerView.setAdapter(mAdapter);
+        adapter.setOnEntryClickListener(this);
     }
 
-    public void updateToolbarTitle(File file) {
-        mToolbar.setTitle(file.getPath().toString());
+    public void openFile(File file) {
+        Uri uri = Uri.fromFile(file);
+        Intent intent = new Intent(android.content.Intent.ACTION_VIEW);
+        String mime = "*/*";
+        MimeTypeMap mimeTypeMap = MimeTypeMap.getSingleton();
+        if (mimeTypeMap.hasExtension(mimeTypeMap.getFileExtensionFromUrl(uri.toString()))) {
+            mime = mimeTypeMap.getMimeTypeFromExtension(mimeTypeMap.getFileExtensionFromUrl(uri.toString()));
+            intent.setDataAndType(uri, mime);
+        }
+        startActivity(intent);
+    }
+
+    @Override
+    public void onEntryClick(File file) {
+        if (file.isFile()) {
+            openFile(file);
+        } else {
+            start(MainActivity.this, file);
+        }
     }
 }
