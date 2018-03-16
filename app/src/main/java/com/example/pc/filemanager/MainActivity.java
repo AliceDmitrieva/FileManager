@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -70,6 +71,7 @@ public class MainActivity extends AppCompatActivity implements FilesAdapter.OnEn
         adapter.setOnEntryClickListener(this);
     }
 
+    @Nullable
     private String getFileExtension(String url) {
         if (url.contains("?")) {
             url = url.substring(0, url.indexOf("?"));
@@ -94,8 +96,11 @@ public class MainActivity extends AppCompatActivity implements FilesAdapter.OnEn
         String mimeType = mime.getMimeTypeFromExtension(getFileExtension(file.toString()));
         intent.setDataAndType(Uri.fromFile(file), mimeType);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        String title = getResources().getString(R.string.chooser_title);
+        Intent chooser = Intent.createChooser(intent, title);
+
         try {
-            startActivity(intent);
+            startActivity(chooser);
         } catch (ActivityNotFoundException e) {
             Toast.makeText(this, R.string.missing_file_handler, Toast.LENGTH_LONG).show();
         }

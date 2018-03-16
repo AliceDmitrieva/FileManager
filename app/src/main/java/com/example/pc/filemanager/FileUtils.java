@@ -8,6 +8,7 @@ import java.util.Collections;
 import java.util.List;
 
 public class FileUtils {
+
     @NonNull
     public static List<File> getFileListFromSDCard(@NonNull File file) {
         List<File> fileList = new ArrayList<>();
