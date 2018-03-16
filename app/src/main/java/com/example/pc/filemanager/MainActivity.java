@@ -1,11 +1,11 @@
 package com.example.pc.filemanager;
 
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
-import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -13,6 +13,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.webkit.MimeTypeMap;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.File;
 import java.util.List;
@@ -71,16 +72,35 @@ public class MainActivity extends AppCompatActivity implements FilesAdapter.OnEn
         adapter.setOnEntryClickListener(this);
     }
 
-    public void openFile(File file) {
-        Uri uri = Uri.fromFile(file);
-        Intent intent = new Intent(android.content.Intent.ACTION_VIEW);
-        String mime = "*/*";
-        MimeTypeMap mimeTypeMap = MimeTypeMap.getSingleton();
-        if (mimeTypeMap.hasExtension(mimeTypeMap.getFileExtensionFromUrl(uri.toString()))) {
-            mime = mimeTypeMap.getMimeTypeFromExtension(mimeTypeMap.getFileExtensionFromUrl(uri.toString()));
-            intent.setDataAndType(uri, mime);
+    private String fileExt(String url) {
+        if (url.indexOf("?") > -1) {
+            url = url.substring(0, url.indexOf("?"));
         }
-        startActivity(intent);
+        if (url.lastIndexOf(".") == -1) {
+            return null;
+        } else {
+            String ext = url.substring(url.lastIndexOf(".") + 1);
+            if (ext.indexOf("%") > -1) {
+                ext = ext.substring(0, ext.indexOf("%"));
+            }
+            if (ext.indexOf("/") > -1) {
+                ext = ext.substring(0, ext.indexOf("/"));
+            }
+            return ext.toLowerCase();
+        }
+    }
+
+    public void openFile(File file) {
+        MimeTypeMap myMime = MimeTypeMap.getSingleton();
+        Intent newIntent = new Intent(Intent.ACTION_VIEW);
+        String mimeType = myMime.getMimeTypeFromExtension(fileExt(file.toString()));
+        newIntent.setDataAndType(Uri.fromFile(file), mimeType);
+        newIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        try {
+            this.startActivity(newIntent);
+        } catch (ActivityNotFoundException e) {
+            Toast.makeText(this, "No handler for this type of file.", Toast.LENGTH_LONG).show();
+        }
     }
 
     @Override

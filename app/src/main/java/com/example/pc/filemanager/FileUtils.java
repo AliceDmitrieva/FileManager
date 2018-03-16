@@ -22,6 +22,4 @@ public class FileUtils {
         Collections.sort(fileList);
         return fileList;
     }
-
-
 }

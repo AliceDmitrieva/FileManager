@@ -48,7 +48,6 @@ public class FilesAdapter extends RecyclerView.Adapter<FilesAdapter.ViewHolder> 
     }
 
     public interface OnEntryClickListener {
-        @Nullable
         void onEntryClick(File file);
     }
 
@@ -65,7 +64,7 @@ public class FilesAdapter extends RecyclerView.Adapter<FilesAdapter.ViewHolder> 
             icon = itemView.findViewById(R.id.file_icon);
         }
 
-        @Override @Nullable
+        @Override
         public void onClick(View v) {
             if (onEntryClickListener != null) {
                 onEntryClickListener.onEntryClick(file);
@@ -74,8 +73,9 @@ public class FilesAdapter extends RecyclerView.Adapter<FilesAdapter.ViewHolder> 
 
         void bindFile(File file) {
             this.file = file;
+            assert fileName != null;
             fileName.setText(file.getName());
-            int imageID = file.isFile() == true ? R.drawable.ic_file_24dp : R.drawable.ic_folder_24dp;
+            int imageID = file.isFile() ? R.drawable.ic_file_24dp : R.drawable.ic_folder_24dp;
             icon.setImageResource(imageID);
         }
     }
