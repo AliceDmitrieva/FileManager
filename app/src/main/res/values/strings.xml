@@ -3,4 +3,5 @@
     <string name="empty_folder">Folder is empty :(</string>
     <string name="file_name">File name</string>
     <string name="file_path">File path</string>
+    <string name="missing_file_handler">No handler for this type of file.</string>
 </resources>

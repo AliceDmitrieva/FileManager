@@ -23,8 +23,6 @@ public class MainActivity extends AppCompatActivity implements FilesAdapter.OnEn
     private static final String EXTRA_DIRECTORY_NAME = "directory_name";
 
     public FilesAdapter adapter;
-    private Toolbar toolbar;
-    private TextView textMessage;
 
     public static void start(Context context, File file) {
         Intent starter = new Intent(context, MainActivity.class);
@@ -37,7 +35,7 @@ public class MainActivity extends AppCompatActivity implements FilesAdapter.OnEn
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        toolbar = findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         toolbar.setNavigationIcon(R.drawable.ic_arrow_white);
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
@@ -56,7 +54,7 @@ public class MainActivity extends AppCompatActivity implements FilesAdapter.OnEn
         toolbar.setTitle(file.getPath());
         List<File> fileNameList = FileUtils.getFileListFromSDCard(file);
 
-        textMessage = findViewById(R.id.textMessage);
+        TextView textMessage = findViewById(R.id.textMessage);
 
         RecyclerView recyclerView = findViewById(R.id.recycleView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -72,34 +70,34 @@ public class MainActivity extends AppCompatActivity implements FilesAdapter.OnEn
         adapter.setOnEntryClickListener(this);
     }
 
-    private String fileExt(String url) {
-        if (url.indexOf("?") > -1) {
+    private String getFileExtension(String url) {
+        if (url.contains("?")) {
             url = url.substring(0, url.indexOf("?"));
         }
         if (url.lastIndexOf(".") == -1) {
             return null;
         } else {
-            String ext = url.substring(url.lastIndexOf(".") + 1);
-            if (ext.indexOf("%") > -1) {
-                ext = ext.substring(0, ext.indexOf("%"));
+            String extension = url.substring(url.lastIndexOf(".") + 1);
+            if (extension.contains("%")) {
+                extension = extension.substring(0, extension.indexOf("%"));
             }
-            if (ext.indexOf("/") > -1) {
-                ext = ext.substring(0, ext.indexOf("/"));
+            if (extension.contains("/")) {
+                extension = extension.substring(0, extension.indexOf("/"));
             }
-            return ext.toLowerCase();
+            return extension.toLowerCase();
         }
     }
 
     public void openFile(File file) {
-        MimeTypeMap myMime = MimeTypeMap.getSingleton();
-        Intent newIntent = new Intent(Intent.ACTION_VIEW);
-        String mimeType = myMime.getMimeTypeFromExtension(fileExt(file.toString()));
-        newIntent.setDataAndType(Uri.fromFile(file), mimeType);
-        newIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        MimeTypeMap mime = MimeTypeMap.getSingleton();
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        String mimeType = mime.getMimeTypeFromExtension(getFileExtension(file.toString()));
+        intent.setDataAndType(Uri.fromFile(file), mimeType);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         try {
-            this.startActivity(newIntent);
+            startActivity(intent);
         } catch (ActivityNotFoundException e) {
-            Toast.makeText(this, "No handler for this type of file.", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, R.string.missing_file_handler, Toast.LENGTH_LONG).show();
         }
     }
 
