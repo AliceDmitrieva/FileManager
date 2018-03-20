@@ -1,31 +1,11 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     android:orientation="vertical">
 
-    <android.support.v7.widget.Toolbar
-        android:id="@+id/toolbar"
+    <FrameLayout
+        android:id="@+id/fragment"
+        android:name="com.example.pc.filemanager.FileListFragment"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="?attr/colorPrimary"
-        android:minHeight="?attr/actionBarSize"
-        android:theme="?attr/actionBarTheme" />
-
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/recycleView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:visibility="visible">
-    </android.support.v7.widget.RecyclerView>
-
-    <TextView
-        android:id="@+id/textMessage"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="@dimen/layout_marginLeft"
-        android:layout_marginRight="@dimen/layout_marginRight"
-        android:layout_marginTop="@dimen/layout_marginTop"
-        android:text="@string/empty_folder"
-        android:textSize="@dimen/text_size"
-        android:visibility="invisible" />
+        android:layout_height="wrap_content" />
 </LinearLayout>
