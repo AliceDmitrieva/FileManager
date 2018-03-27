@@ -11,9 +11,11 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        FileListFragment fragment = new FileListFragment();
+        FileListFragment fragment = FileListFragment.newInstance(FileListFragment.file);
         FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
-        fragmentTransaction.add(R.id.fragment, fragment);
+        fragmentTransaction.replace(R.id.fragment, fragment);
+        fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+        fragmentTransaction.addToBackStack(null);
         fragmentTransaction.commit();
     }
 }

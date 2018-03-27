@@ -24,12 +24,22 @@ import java.util.List;
 public class FileListFragment extends Fragment implements FilesAdapter.OnEntryClickListener {
 
     private static final String EXTRA_DIRECTORY_NAME = "directory_name";
+    public static File file;
 
-    public static void start(Context context, File file) {
+    public static FileListFragment newInstance(File file) {
+        FileListFragment fragment = new FileListFragment();
+        Bundle args = new Bundle();
+        args.putSerializable(EXTRA_DIRECTORY_NAME, file);
+        fragment.setArguments(args);
+
+        return fragment;
+    }
+
+   /* public static void start(Context context, File file) {
         Intent starter = new Intent(context, MainActivity.class);
         starter.putExtra(EXTRA_DIRECTORY_NAME, file);
         context.startActivity(starter);
-    }
+    }*/
 
     @Nullable
     private String getFileExtension(String url) {
@@ -107,7 +117,8 @@ public class FileListFragment extends Fragment implements FilesAdapter.OnEntryCl
         if (file.isFile()) {
             openFile(file);
         } else {
-            start(getActivity(), file);
+            this.file = file;
+            //== little magic ==//
         }
     }
 }
