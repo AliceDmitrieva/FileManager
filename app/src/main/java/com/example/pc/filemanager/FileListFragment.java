@@ -1,12 +1,10 @@
 package com.example.pc.filemanager;
 
+import android.app.Activity;
 import android.app.Fragment;
-import android.content.ActivityNotFoundException;
-import android.content.Context;
-import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -14,9 +12,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.webkit.MimeTypeMap;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.io.File;
 import java.util.List;
@@ -24,56 +20,35 @@ import java.util.List;
 public class FileListFragment extends Fragment implements FilesAdapter.OnEntryClickListener {
 
     private static final String EXTRA_DIRECTORY_NAME = "directory_name";
-    public static File file;
+    private OnFolderClickListener listener;
 
-    public static FileListFragment newInstance(File file) {
+    public interface OnFolderClickListener {
+        void onFolderClick(@NonNull File file);
+    }
+
+    @NonNull
+    public static FileListFragment newInstance(@Nullable File file) {
         FileListFragment fragment = new FileListFragment();
         Bundle args = new Bundle();
-        args.putSerializable(EXTRA_DIRECTORY_NAME, file);
+        args.putSerializable(FileListFragment.EXTRA_DIRECTORY_NAME, file);
         fragment.setArguments(args);
-
         return fragment;
     }
 
-   /* public static void start(Context context, File file) {
-        Intent starter = new Intent(context, MainActivity.class);
-        starter.putExtra(EXTRA_DIRECTORY_NAME, file);
-        context.startActivity(starter);
-    }*/
-
-    @Nullable
-    private String getFileExtension(String url) {
-        if (url.contains("?")) {
-            url = url.substring(0, url.indexOf("?"));
-        }
-        if (url.lastIndexOf(".") == -1) {
-            return null;
-        } else {
-            String extension = url.substring(url.lastIndexOf(".") + 1);
-            if (extension.contains("%")) {
-                extension = extension.substring(0, extension.indexOf("%"));
-            }
-            if (extension.contains("/")) {
-                extension = extension.substring(0, extension.indexOf("/"));
-            }
-            return extension.toLowerCase();
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        try {
+            this.listener = (OnFolderClickListener) activity;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(activity.toString() + " must implement OnArticleSelectedListener");
         }
     }
 
-    public void openFile(File file) {
-        MimeTypeMap mime = MimeTypeMap.getSingleton();
-        Intent intent = new Intent(Intent.ACTION_VIEW);
-        String mimeType = mime.getMimeTypeFromExtension(getFileExtension(file.toString()));
-        intent.setDataAndType(Uri.fromFile(file), mimeType);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        String title = getResources().getString(R.string.chooser_title);
-        Intent chooser = Intent.createChooser(intent, title);
-
-        try {
-            startActivity(chooser);
-        } catch (ActivityNotFoundException e) {
-            Toast.makeText(getActivity(), R.string.missing_file_handler, Toast.LENGTH_LONG).show();
-        }
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        this.listener = null;
     }
 
     @Override
@@ -88,7 +63,7 @@ public class FileListFragment extends Fragment implements FilesAdapter.OnEntryCl
                 getActivity().finish();
             }
         });
-        Bundle extras = getActivity().getIntent().getExtras();
+        Bundle extras = getArguments();
         File file = extras == null ? null : (File) extras.getSerializable(EXTRA_DIRECTORY_NAME);
         if (file == null) {
             file = Environment.getExternalStorageDirectory();
@@ -115,10 +90,9 @@ public class FileListFragment extends Fragment implements FilesAdapter.OnEntryCl
     @Override
     public void onEntryClick(File file) {
         if (file.isFile()) {
-            openFile(file);
+            FileUtils.openFile(getActivity(), file);
         } else {
-            this.file = file;
-            //== little magic ==//
+            listener.onFolderClick(file);
         }
     }
 }

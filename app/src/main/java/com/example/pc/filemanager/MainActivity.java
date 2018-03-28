@@ -1,18 +1,32 @@
 package com.example.pc.filemanager;
 
+import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 
-public class MainActivity extends AppCompatActivity {
+import java.io.File;
+
+public class MainActivity extends AppCompatActivity implements FileListFragment.OnFolderClickListener {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        changeFragment(null);
+    }
 
-        FileListFragment fragment = FileListFragment.newInstance(FileListFragment.file);
-        FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
+    @Override
+    public void onFolderClick(@NonNull File file) {
+        changeFragment(file);
+    }
+
+    private void changeFragment(@Nullable File file) {
+        FileListFragment fragment = FileListFragment.newInstance(file);
+        FragmentManager fragmentManager = getFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.replace(R.id.fragment, fragment);
         fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
         fragmentTransaction.addToBackStack(null);
