@@ -20,10 +20,11 @@ import java.util.List;
 public class FileListFragment extends Fragment implements FilesAdapter.OnEntryClickListener {
 
     private static final String EXTRA_DIRECTORY_NAME = "directory_name";
-    private OnFolderClickListener listener;
+    private OnElementClickListener listener;
 
-    public interface OnFolderClickListener {
+    public interface OnElementClickListener {
         void onFolderClick(@NonNull File file);
+        void onBackArrowClick();
     }
 
     @NonNull
@@ -39,7 +40,7 @@ public class FileListFragment extends Fragment implements FilesAdapter.OnEntryCl
     public void onAttach(Activity activity) {
         super.onAttach(activity);
         try {
-            this.listener = (OnFolderClickListener) activity;
+            this.listener = (OnElementClickListener) activity;
         } catch (ClassCastException e) {
             throw new ClassCastException(activity.toString() + " must implement OnArticleSelectedListener");
         }
@@ -60,9 +61,10 @@ public class FileListFragment extends Fragment implements FilesAdapter.OnEntryCl
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                getActivity().finish();
+                listener.onBackArrowClick();
             }
         });
+
         Bundle extras = getArguments();
         File file = extras == null ? null : (File) extras.getSerializable(EXTRA_DIRECTORY_NAME);
         if (file == null) {

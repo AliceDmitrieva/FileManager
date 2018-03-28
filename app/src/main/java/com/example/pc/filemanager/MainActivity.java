@@ -9,7 +9,7 @@ import android.support.v7.app.AppCompatActivity;
 
 import java.io.File;
 
-public class MainActivity extends AppCompatActivity implements FileListFragment.OnFolderClickListener {
+public class MainActivity extends AppCompatActivity implements FileListFragment.OnElementClickListener {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -23,6 +23,11 @@ public class MainActivity extends AppCompatActivity implements FileListFragment.
         changeFragment(file);
     }
 
+    @Override
+    public void onBackArrowClick() {
+        onBackPressed();
+    }
+
     private void changeFragment(@Nullable File file) {
         FileListFragment fragment = FileListFragment.newInstance(file);
         FragmentManager fragmentManager = getFragmentManager();
@@ -31,5 +36,15 @@ public class MainActivity extends AppCompatActivity implements FileListFragment.
         fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
         fragmentTransaction.addToBackStack(null);
         fragmentTransaction.commit();
+    }
+
+    @Override
+    public void onBackPressed() {
+        int countOfEntries = getFragmentManager().getBackStackEntryCount();
+        if (countOfEntries == 1) {
+            finish();
+        } else {
+            getFragmentManager().popBackStack();
+        }
     }
 }
