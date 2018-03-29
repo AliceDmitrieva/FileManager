@@ -42,7 +42,7 @@ public class FileListFragment extends Fragment implements FilesAdapter.OnEntryCl
         try {
             this.listener = (OnElementClickListener) activity;
         } catch (ClassCastException e) {
-            throw new ClassCastException(activity.toString() + " must implement OnArticleSelectedListener");
+            throw new ClassCastException(activity.toString() + getString(R.string.missing_listener_implementation));
         }
     }
 
